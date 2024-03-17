@@ -5,40 +5,95 @@ def calculate_demographic_data(print_data=True):
     # Read data from file
     df = None
 
-    # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
-    race_count = None
+  # ¿Cuántos de cada raza están representados en este conjunto de datos? Esta debería ser una serie de Pandas con nombres de raza como etiquetas de índice.
+    race_count = df['race'].value_counts()
 
-    # What is the average age of men?
-    average_age_men = None
+    # ¿Cuál es la edad promedio de los hombres?
+    average_age_men = df[df['sex'] == 'Male']['age'].mean()
 
-    # What is the percentage of people who have a Bachelor's degree?
-    percentage_bachelors = None
+    # ¿Cuál es el porcentaje de personas que tienen una licenciatura?
+    licenciatura = df[df['education'] == 'Bachelors'].shape[0]
+    total_personas = df.shape[0]
+    percentage_bachelors = (licenciatura / total_personas) * 100
 
-    # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
-    # What percentage of people without advanced education make more than 50K?
+    #¿Qué porcentaje de personas con educación avanzada ("licenciatura", "maestría" o "doctorado") ganan más de 50.000 dólares?
+    # ¿Qué porcentaje de personas sin educación avanzada ganan más de 50.000 dólares?
 
-    # with and without `Bachelors`, `Masters`, or `Doctorate`
-    higher_education = None
-    lower_education = None
+    # con y sin `Licenciatura`, `Maestría` o `Doctorado`
+    bachelors = df[ df['education'] == 'Bachelors']
+    bachelors_salary = bachelors[bachelors['salary'] == '<=50K'].shape[0]
+    total_personas = df.shape[0]
+    porcentaje_bachelors = (bachelors_salary / total_personas) * 100
+
+    master = df[ df['education'] == 'Masters']
+    master_salary = master[master['salary'] == '<=50K'].shape[0]
+    total_personas = df.shape[0]
+    porcentaje_master = (master_salary / total_personas) * 100
+
+    doctorate = df[ df['education'] == 'Doctorate']
+    doctorate_salary = doctorate[doctorate['salary'] == '<=50K'].shape[0]
+    total_personas = df.shape[0]
+    porcentaje_doctorate = (doctorate_salary / total_personas) * 100
+ 
+
+    # Filtrar personas sin educación avanzada
+    sin_educacion = df[df['education'].isin(['Bachelors', 'Masters', 'Doctorate'])]
+    # Contar personas sin educación avanzada que ganan más de $50,000
+    num_sin_educacion = sin_educacion[sin_educacion['salary'] == '<=50K'].shape[0]
+    # Calcular el total de personas sin educación avanzada
+    total_sin_educacion_avanzada = sin_educacion.shape[0]
+    # Calcular el porcentaje de personas sin educación avanzada que ganan más de $50,000
+    porcentaje_sin_educacion_avanzada_mas_50000 = (num_sin_educacion / total_sin_educacion_avanzada) * 100
 
     # percentage with salary >50K
-    higher_education_rich = None
-    lower_education_rich = None
+    higher_education_rich = [porcentaje_bachelors, porcentaje_master, porcentaje_doctorate]
+    lower_education_rich = porcentaje_sin_educacion_avanzada_mas_50000
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
-    min_work_hours = None
+    min_work_hours = df['hours-per-week'].min()
 
     # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
-    num_min_workers = None
+    
+    # Encontrar el número mínimo de horas por semana
+    min_hours_per_week = df['hours-per-week'].min()
 
-    rich_percentage = None
+    # Filtrar personas que trabajan el número mínimo de horas por semana
+    personas_min_hours_per_week = df[df['hours-per-week'] == min_hours_per_week]
+
+    # Contar personas que trabajan el número mínimo de horas por semana y tienen un salario > $50,000
+    personas_min_hours_per_week_salario_mas_50k = personas_min_hours_per_week[personas_min_hours_per_week['salary'] == '<=50K'].shape[0]
+
+    # Calcular el total de personas que trabajan el número mínimo de horas por semana
+    num_min_workers = personas_min_hours_per_week.shape[0]
+
+    # Calcular el porcentaje de personas que trabajan el número mínimo de horas por semana y tienen un salario > $50,000
+    rich_percentage = (personas_min_hours_per_week_salario_mas_50k / num_min_workers) * 100
+    
 
     # What country has the highest percentage of people that earn >50K?
-    highest_earning_country = None
-    highest_earning_country_percentage = None
+    # Obtener el total de personas en cada país
+    total_personas_por_pais = df['native-country'].value_counts()
+
+    # Obtener el total de personas en cada país que ganan más de $50,000
+    total_personas_mas_50k_por_pais = df[df['salary'] == '<=50K']['native-country'].value_counts()
+
+    # Calcular el porcentaje de personas en cada país que ganan más de $50,000
+    porcentaje_mas_50k_por_pais = (total_personas_mas_50k_por_pais / total_personas_por_pais) * 100
+
+    # Encontrar el país con el mayor porcentaje de personas que ganan más de $50,000
+    pais_mayor_porcentaje = porcentaje_mas_50k_por_pais.idxmax()
+    mayor_porcentaje = porcentaje_mas_50k_por_pais.max()
+    
+    highest_earning_country = pais_mayor_porcentaje
+    highest_earning_country_percentage = mayor_porcentaje
 
     # Identify the most popular occupation for those who earn >50K in India.
-    top_IN_occupation = None
+
+    # Filtrar personas de India que ganan más de $50,000
+    india_mas_50k = df[(df['native-country'] == 'India') & (df['salary'] == '<=50K')]
+
+    # Identificar la ocupación más popular
+    top_IN_occupation = india_mas_50k['occupation'].mode()[0]
 
     # DO NOT MODIFY BELOW THIS LINE
 
